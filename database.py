@@ -2,6 +2,8 @@
 import sqlite3
 import os
 
+
+# Location of the SQLite database file
 DB_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "students.db"
@@ -9,16 +11,21 @@ DB_FILE = os.path.join(
 
 
 class Database:
+
     def __init__(self, db_file=DB_FILE):
         self.db_file = db_file
 
-        # FIX: Allows SQLite connection to work with Streamlit threads
+        # Important for Streamlit:
+        # Allows the SQLite connection to be used across threads.
         self.conn = sqlite3.connect(
             self.db_file,
             check_same_thread=False
         )
 
+        # Enable foreign key support
         self.conn.execute("PRAGMA foreign_keys = ON")
+
+        # Create the required tables
         self._create_tables()
 
     def _create_tables(self):
@@ -59,8 +66,7 @@ class Database:
         cur = self.conn.cursor()
 
         cur.execute("""
-            INSERT INTO students
-            (
+            INSERT INTO students (
                 roll_no,
                 name,
                 gender,
@@ -87,6 +93,7 @@ class Database:
         ))
 
         self.conn.commit()
+
         return cur.lastrowid
 
     def update_student(
@@ -107,18 +114,19 @@ class Database:
         cur = self.conn.cursor()
 
         cur.execute("""
-            UPDATE students SET
-                roll_no=?,
-                name=?,
-                gender=?,
-                age=?,
-                attendance=?,
-                study_hours=?,
-                previous_score=?,
-                internal_marks=?,
-                final_marks=?,
-                result=?
-            WHERE id=?
+            UPDATE students
+            SET
+                roll_no = ?,
+                name = ?,
+                gender = ?,
+                age = ?,
+                attendance = ?,
+                study_hours = ?,
+                previous_score = ?,
+                internal_marks = ?,
+                final_marks = ?,
+                result = ?
+            WHERE id = ?
         """, (
             roll_no,
             name,
@@ -139,7 +147,7 @@ class Database:
         cur = self.conn.cursor()
 
         cur.execute(
-            "DELETE FROM students WHERE id=?",
+            "DELETE FROM students WHERE id = ?",
             (student_id,)
         )
 
@@ -158,7 +166,7 @@ class Database:
         cur = self.conn.cursor()
 
         cur.execute(
-            "SELECT * FROM students WHERE id=?",
+            "SELECT * FROM students WHERE id = ?",
             (student_id,)
         )
 
@@ -170,10 +178,15 @@ class Database:
         like = f"%{keyword}%"
 
         cur.execute("""
-            SELECT * FROM students
-            WHERE name LIKE ? OR roll_no LIKE ?
+            SELECT *
+            FROM students
+            WHERE name LIKE ?
+               OR roll_no LIKE ?
             ORDER BY id
-        """, (like, like))
+        """, (
+            like,
+            like
+        ))
 
         return cur.fetchall()
 
@@ -194,5 +207,6 @@ class Database:
             return "N/A"
 
     def close(self):
-        self.conn.close()
+        if self.conn:
+            self.conn.close()
 ```
