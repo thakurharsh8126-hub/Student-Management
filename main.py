@@ -1,10 +1,4 @@
-"""
-main.py
-Student Management System with a Tkinter GUI and a scikit-learn
-powered performance predictor.
 
-Run with:  python main.py
-"""
 
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -39,7 +33,7 @@ class StudentApp(tk.Tk):
         self._build_layout()
         self.refresh_table()
 
-    # ---------------------------------------------------------------- UI
+    
     def _build_style(self):
         style = ttk.Style()
         try:
@@ -64,7 +58,7 @@ class StudentApp(tk.Tk):
         self._build_manage_tab(self.manage_tab)
         self._build_predict_tab(self.predict_tab)
 
-    # ------------------------------------------------------- Manage Tab
+   
     def _build_manage_tab(self, parent):
         parent.columnconfigure(0, weight=1)
         parent.rowconfigure(2, weight=1)
@@ -73,7 +67,7 @@ class StudentApp(tk.Tk):
             row=0, column=0, sticky="w", pady=(0, 8)
         )
 
-        # --- form ---
+        
         form = ttk.LabelFrame(parent, text="Add / Update Student")
         form.grid(row=1, column=0, sticky="ew", pady=(0, 10))
         for i in range(8):
@@ -100,14 +94,14 @@ class StudentApp(tk.Tk):
         ttk.Button(btn_frame, text="Delete Selected", command=self.delete_student).pack(side="left", padx=4)
         ttk.Button(btn_frame, text="Clear Form", command=self.clear_form).pack(side="left", padx=4)
 
-        # --- search ---
+        
         search_frame = ttk.Frame(parent)
         search_frame.grid(row=1, column=0, sticky="ne", padx=5)
         # placed inside a corner via separate row below instead for clarity
         search_bar = ttk.Frame(parent)
         search_bar.grid(row=1, column=0, sticky="e")
 
-        # --- table ---
+        
         table_frame = ttk.Frame(parent)
         table_frame.grid(row=2, column=0, sticky="nsew")
         table_frame.columnconfigure(0, weight=1)
@@ -137,7 +131,7 @@ class StudentApp(tk.Tk):
 
         self.tree.bind("<<TreeviewSelect>>", self.on_row_select)
 
-    # ------------------------------------------------------ Predict Tab
+    
     def _build_predict_tab(self, parent):
         parent.columnconfigure(0, weight=1)
         parent.columnconfigure(1, weight=1)
@@ -164,7 +158,7 @@ class StudentApp(tk.Tk):
                                      font=("Consolas", 10))
         self.metrics_text.pack(fill="both", expand=True, padx=10, pady=(0, 10))
 
-        # right: predict form
+        
         right = ttk.LabelFrame(parent, text="2. Predict for a Student Profile")
         right.grid(row=2, column=1, sticky="nsew", padx=10, pady=5)
         for i in range(2):
@@ -203,7 +197,7 @@ class StudentApp(tk.Tk):
             row=len(pred_fields) + 3, column=0, columnspan=2, pady=10
         )
 
-    # ------------------------------------------------------------ Logic
+    
     def _get_form_values(self):
         try:
             roll_no = self.entries["roll_no"].get().strip()
@@ -290,7 +284,7 @@ class StudentApp(tk.Tk):
         total = self.db.count_students()
         self.count_label.config(text=f"Total students: {total}")
 
-    # ------------------------------------------------------------ ML
+    
     def train_model(self):
         rows = self.db.get_all_students()
         success, message = self.model.train(rows)
