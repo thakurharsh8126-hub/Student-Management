@@ -1,37 +1,30 @@
-```python
-import sqlite3
 import os
+import sqlite3
 
-
-# Location of the SQLite database file
 DB_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "students.db"
+os.path.dirname(os.path.abspath(**file**)),
+"students.db"
 )
-
 
 class Database:
 
-    def __init__(self, db_file=DB_FILE):
-        self.db_file = db_file
+```
+def __init__(self, db_file=DB_FILE):
+    self.db_file = db_file
+    self._create_tables()
 
-        # Important for Streamlit:
-        # Allows the SQLite connection to be used across threads.
-        self.conn = sqlite3.connect(
-            self.db_file,
-            check_same_thread=False
-        )
+def _connect(self):
+    conn = sqlite3.connect(self.db_file)
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
 
-        # Enable foreign key support
-        self.conn.execute("PRAGMA foreign_keys = ON")
+def _create_tables(self):
+    conn = self._connect()
 
-        # Create the required tables
-        self._create_tables()
+    try:
+        cursor = conn.cursor()
 
-    def _create_tables(self):
-        cur = self.conn.cursor()
-
-        cur.execute("""
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS students (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 roll_no TEXT UNIQUE NOT NULL,
@@ -47,25 +40,30 @@ class Database:
             )
         """)
 
-        self.conn.commit()
+        conn.commit()
 
-    def add_student(
-        self,
-        roll_no,
-        name,
-        gender,
-        age,
-        attendance,
-        study_hours,
-        previous_score,
-        internal_marks,
-        final_marks
-    ):
-        result = self._derive_result(final_marks)
+    finally:
+        conn.close()
 
-        cur = self.conn.cursor()
+def add_student(
+    self,
+    roll_no,
+    name,
+    gender,
+    age,
+    attendance,
+    study_hours,
+    previous_score,
+    internal_marks,
+    final_marks
+):
+    result = self._derive_result(final_marks)
+    conn = self._connect()
 
-        cur.execute("""
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute("""
             INSERT INTO students (
                 roll_no,
                 name,
@@ -92,28 +90,32 @@ class Database:
             result
         ))
 
-        self.conn.commit()
+        conn.commit()
+        return cursor.lastrowid
 
-        return cur.lastrowid
+    finally:
+        conn.close()
 
-    def update_student(
-        self,
-        student_id,
-        roll_no,
-        name,
-        gender,
-        age,
-        attendance,
-        study_hours,
-        previous_score,
-        internal_marks,
-        final_marks
-    ):
-        result = self._derive_result(final_marks)
+def update_student(
+    self,
+    student_id,
+    roll_no,
+    name,
+    gender,
+    age,
+    attendance,
+    study_hours,
+    previous_score,
+    internal_marks,
+    final_marks
+):
+    result = self._derive_result(final_marks)
+    conn = self._connect()
 
-        cur = self.conn.cursor()
+    try:
+        cursor = conn.cursor()
 
-        cur.execute("""
+        cursor.execute("""
             UPDATE students
             SET
                 roll_no = ?,
@@ -141,72 +143,134 @@ class Database:
             student_id
         ))
 
-        self.conn.commit()
+        conn.commit()
 
-    def delete_student(self, student_id):
-        cur = self.conn.cursor()
+    finally:
+        conn.close()
 
-        cur.execute(
+def delete_student(self, student_id):
+    conn = self._connect()
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute(
             "DELETE FROM students WHERE id = ?",
             (student_id,)
         )
 
-        self.conn.commit()
+        conn.commit()
 
-    def get_all_students(self):
-        cur = self.conn.cursor()
+    finally:
+        conn.close()
 
-        cur.execute(
-            "SELECT * FROM students ORDER BY id"
-        )
+def get_all_students(self):
+    conn = self._connect()
 
-        return cur.fetchall()
+    try:
+        cursor = conn.cursor()
 
-    def get_student(self, student_id):
-        cur = self.conn.cursor()
+        cursor.execute("""
+            SELECT
+                id,
+                roll_no,
+                name,
+                gender,
+                age,
+                attendance,
+                study_hours,
+                previous_score,
+                internal_marks,
+                final_marks,
+                result
+            FROM students
+            ORDER BY id
+        """)
 
-        cur.execute(
-            "SELECT * FROM students WHERE id = ?",
-            (student_id,)
-        )
+        return cursor.fetchall()
 
-        return cur.fetchone()
+    finally:
+        conn.close()
 
-    def search_students(self, keyword):
-        cur = self.conn.cursor()
+def get_student(self, student_id):
+    conn = self._connect()
 
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                id,
+                roll_no,
+                name,
+                gender,
+                age,
+                attendance,
+                study_hours,
+                previous_score,
+                internal_marks,
+                final_marks,
+                result
+            FROM students
+            WHERE id = ?
+        """, (student_id,))
+
+        return cursor.fetchone()
+
+    finally:
+        conn.close()
+
+def search_students(self, keyword):
+    conn = self._connect()
+
+    try:
+        cursor = conn.cursor()
+
+        keyword = str(keyword).strip()
         like = f"%{keyword}%"
 
-        cur.execute("""
-            SELECT *
+        cursor.execute("""
+            SELECT
+                id,
+                roll_no,
+                name,
+                gender,
+                age,
+                attendance,
+                study_hours,
+                previous_score,
+                internal_marks,
+                final_marks,
+                result
             FROM students
             WHERE name LIKE ?
                OR roll_no LIKE ?
             ORDER BY id
-        """, (
-            like,
-            like
-        ))
+        """, (like, like))
 
-        return cur.fetchall()
+        return cursor.fetchall()
 
-    def count_students(self):
-        cur = self.conn.cursor()
+    finally:
+        conn.close()
 
-        cur.execute(
-            "SELECT COUNT(*) FROM students"
-        )
+def count_students(self):
+    conn = self._connect()
 
-        return cur.fetchone()[0]
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM students")
+        return cursor.fetchone()[0]
 
-    @staticmethod
-    def _derive_result(final_marks):
-        try:
-            return "Pass" if float(final_marks) >= 40 else "Fail"
-        except (TypeError, ValueError):
-            return "N/A"
+    finally:
+        conn.close()
 
-    def close(self):
-        if self.conn:
-            self.conn.close()
+@staticmethod
+def _derive_result(final_marks):
+    try:
+        return "Pass" if float(final_marks) >= 40 else "Fail"
+    except (TypeError, ValueError):
+        return "N/A"
+
+def close(self):
+    pass
 ```
