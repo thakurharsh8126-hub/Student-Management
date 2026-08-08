@@ -1,11 +1,3 @@
-"""
-seed_sample_data.py
-Optional helper: populates students.db with sample records so you can
-immediately try out the ML Performance Predictor tab without typing
-in data by hand.
-
-Run with:  python seed_sample_data.py
-"""
 
 import random
 from database import Database
@@ -24,8 +16,7 @@ def make_row(i, name):
     previous_score = round(random.uniform(30, 95), 1)
     internal_marks = round(random.uniform(30, 95), 1)
 
-    # Final marks loosely driven by the other features + noise, so the
-    # ML model has a real (but not perfectly linear) pattern to learn.
+    
     base = (
         0.35 * attendance +
         4.0 * study_hours +
