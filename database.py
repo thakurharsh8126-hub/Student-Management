@@ -1,7 +1,6 @@
-```python
+```text
 import os
 import sqlite3
-
 
 DB_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -16,8 +15,6 @@ class Database:
         self._create_tables()
 
     def _connect(self):
-        # New connection for every operation.
-        # This works better with Streamlit's threading.
         conn = sqlite3.connect(
             self.db_file,
             check_same_thread=False
@@ -265,11 +262,7 @@ class Database:
 
         try:
             cursor = conn.cursor()
-
-            cursor.execute(
-                "SELECT COUNT(*) FROM students"
-            )
-
+            cursor.execute("SELECT COUNT(*) FROM students")
             return cursor.fetchone()[0]
 
         finally:
@@ -283,7 +276,5 @@ class Database:
             return "N/A"
 
     def close(self):
-        # Connections are closed after every operation,
-        # so there is nothing to close here.
         pass
 ```
