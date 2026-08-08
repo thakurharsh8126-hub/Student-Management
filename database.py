@@ -2,7 +2,7 @@ import os
 import sqlite3
 
 DB_FILE = os.path.join(
-os.path.dirname(os.path.abspath(**file**)),
+os.path.dirname(os.path.abspath(__file__)),
 "students.db"
 )
 
